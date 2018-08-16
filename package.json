@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/voxbone-workshop/webrtc-ring-to-forwarding#readme",
   "dependencies": {
+    "clear-require": "^2.0.0",
     "config": "^2.0.1",
     "drachtio-srf": "^4.3.4",
     "pino": "^5.0.0"

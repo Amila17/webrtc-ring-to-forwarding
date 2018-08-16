@@ -4,6 +4,8 @@ const logger = srf.locals.logger = require('pino')();
 const config = require('config');
 const validateCall = require('./lib/validate-call');
 const parseUri = Srf.parseUri;
+srf.locals.numberMap = require('./lib/number-mapping')(logger);
+
 
 // connect to the drachtio sip server
 srf.connect(config.get('drachtio'))
@@ -17,6 +19,7 @@ srf.use('invite', validateCall);
 // handle validated incoming calls
 srf.invite((req, res) => {
   const uri = parseUri(req.uri);
+  const callId = req.get('Call-ID');
   const dest = `sip:${req.locals.calledNumber}@voxout.voxbone.com`;
 
   srf.createB2BUA(req, res, dest, {
@@ -27,12 +30,12 @@ srf.invite((req, res) => {
     }
   })
     .then(({uas, uac}) => {
-      logger.info('call connected');
+      logger.info({callId}, `call connected successfully to ${req.locals.calledNumber}`);
 
       return setHandlers({uas, uac});
     })
     .catch((err) => {
-      logger.info(`failed to connect call: ${err}`);
+      logger.info({callId}, `failed to connect call: ${err}`);
     });
 });
 
