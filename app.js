@@ -30,6 +30,9 @@ srf.invite((req, res) => {
     }
   })
     .then(({uas, uac}) => {
+      uas.other = uac;
+      uac.other = uas;
+
       logger.info({callId}, `call connected successfully to ${req.locals.calledNumber}`);
 
       return setHandlers({uas, uac});
@@ -40,17 +43,19 @@ srf.invite((req, res) => {
 });
 
 function setHandlers({uas, uac}) {
-  // when one side hangs up, hang up the other
-  uas.on('destroy', () => uac.destroy());
-  uac.on('destroy', () => uas.destroy());
+  [uas, uac].forEach((dlg) => {
 
-  // handle re-INVITEs with changed SDP
-  uas.on('modify', (req, res) => {
-    return uac.modify(req.body)
-      .then(() => res.send(200, {body: uac.remote.sdp}));
+    // when one side hangs up, hang up the other
+    dlg.on('destroy', () => {
+      logger.info({callId: dlg.sip.callId}, 'call ended');
+      dlg.other.destroy();
+    });
+
+    // handle re-INVITEs
+    dlg.on('modify', (req, res) => {
+      logger.info({callId: dlg.sip.callId}, 're-INVITE with new SDP');
+      return dlg.other.modify(req.body).then(() => res.send(200, {body: dlg.other.remote.spd}));
+    });
   });
-  uac.on('modify', (req, res) => {
-    return uas.modify(req.body)
-      .then(() => res.send(200, {body: uas.remote.sdp}));
-  });
+
 }
