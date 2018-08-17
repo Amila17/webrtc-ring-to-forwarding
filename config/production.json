@@ -4,15 +4,17 @@
     "port": 9022,
     "secret": "cymru"
   },
-  "voxout": {
-    "auth": {
-      "username": "<your-voxout-username-here>",
-      "password": "<your-voxout-password-here>"      
-    },
-    "border-controller": "sip:81.201.82.250"
-  },
-  "number-mapping": [
-    ["incoming-did-here-1", "outgoing-ring-to-here-1"],
-    ["incoming-did-here-2", "outgoing-ring-to-here-2"]
-  ]
+  "voxout-border-controller": "sip:81.201.82.250",
+  "customers": {
+    "customer1": {
+      "auth": {
+        "username": "<your-voxout-username-here>",
+        "password": "<your-voxout-password-here>"              
+      },
+      "number-mapping": [
+        ["incoming-did-here-1", "outgoing-ring-to-here-1"],
+        ["incoming-did-here-2", "outgoing-ring-to-here-2"]
+      ]      
+    }
+  }
 }

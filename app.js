@@ -4,7 +4,7 @@ const logger = srf.locals.logger = require('pino')();
 const config = require('config');
 const validateCall = require('./lib/validate-call');
 const parseUri = Srf.parseUri;
-srf.locals.numberMap = require('./lib/number-mapping')(logger);
+const getRoutingForDid = require('./lib/number-mapping')(logger);
 
 
 // connect to the drachtio sip server
@@ -20,11 +20,17 @@ srf.use('invite', validateCall);
 srf.invite((req, res) => {
   const uri = parseUri(req.uri);
   const callId = req.get('Call-ID');
-  const dest = `sip:${req.locals.calledNumber}@voxout.voxbone.com`;
+  const routing = getRoutingForDid(uri.user);
 
+  if (!routing) {
+    logger.info({callId}, `DID not found ${uri.user}`);
+    return res.send(404);
+  }
+
+  const dest = `sip:${routing.ringTo}@voxout.voxbone.com`;
   srf.createB2BUA(req, res, dest, {
-    proxy: config.get('voxout.border-controller'),
-    auth: config.get('voxout.auth'),
+    proxy: config.get('voxout-border-controller'),
+    auth: routing.auth,
     headers: {
       from: `sip:${uri.user}@localhost`
     }
