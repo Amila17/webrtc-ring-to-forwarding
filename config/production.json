@@ -4,7 +4,10 @@
     "port": 9022,
     "secret": "cymru"
   },
-  "voxout-border-controller": "sip:81.201.82.250",
+  "voxout": {
+    "proxy": "sip:81.201.82.250",
+    "dns": "voxout.voxbone.com"
+  },
   "customers": {
     "customer1": {
       "auth": {
