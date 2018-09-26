@@ -35,7 +35,7 @@ srf.invite((req, res) => {
       uas.other = uac;
       uac.other = uas;
 
-      logger.info({callId}, `call connected successfully to ${req.locals.calledNumber}`);
+      logger.info({callId}, `call connected successfully to ${req.locals.ringTo}`);
 
       return setHandlers({uas, uac});
     })
