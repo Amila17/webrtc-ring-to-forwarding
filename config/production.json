@@ -12,7 +12,8 @@
     "customer1": {
       "auth": {
         "username": "<your-voxout-username-here>",
-        "password": "<your-voxout-password-here>"              
+        "password": "<your-voxout-password-here>",         
+        "diversion": "+442033185490",
       },
       "number-mapping": [
         ["incoming-did-here-1", "outgoing-ring-to-here-1"],

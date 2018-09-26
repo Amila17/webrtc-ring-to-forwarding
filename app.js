@@ -6,12 +6,10 @@ const getRoutingForDid = require('./lib/number-mapping')(logger);
 const validateCall = require('./lib/validate-call')(logger, getRoutingForDid);
 const parseUri = Srf.parseUri;
 
-
 // connect to the drachtio sip server
 srf.connect(config.get('drachtio'))
   .on('connect', (err, hp) => logger.info(`listening for sip traffic on ${hp}`))
   .on('error', (err) => logger.info(err, 'error connecting'));
-
 
 // middleware to filter out calls that don't come from Voxbone
 srf.use('invite', validateCall);
@@ -20,14 +18,18 @@ srf.use('invite', validateCall);
 srf.invite((req, res) => {
   const uri = parseUri(req.uri);
   const callId = req.get('Call-ID');
+  const headers = {from: `sip:${uri.user}@localhost`};
+  if (req.locals.auth.diversion) {
+    Object.assign(headers, {
+      Diversion: `<sip:${req.locals.auth.diversion}@voxbone.com>;reason=unknown,counter=1,privacy=off` 
+    });
+  }
 
   const dest = `sip:${req.locals.ringTo}@${config.get('voxout.dns')}`;
   srf.createB2BUA(req, res, dest, {
     proxy: config.get('voxout.proxy'),
     auth: req.locals.auth,
-    headers: {
-      from: `sip:${uri.user}@localhost`
-    }
+    headers
   })
     .then(({uas, uac}) => {
       uas.other = uac;
