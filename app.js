@@ -18,7 +18,10 @@ srf.use('invite', validateCall);
 srf.invite((req, res) => {
   const uri = parseUri(req.uri);
   const callId = req.get('Call-ID');
-  const headers = {from: `sip:${uri.user}@localhost`};
+  const headers = {
+    from: `sip:${uri.user}@localhost`,
+    'Contact': `sip:${uri.user}@localhost`
+  };
   if (req.locals.auth.diversion) {
     Object.assign(headers, {
       Diversion: `<sip:${req.locals.auth.diversion}@voxbone.com>;reason=unknown,counter=1,privacy=off` 
