@@ -16,17 +16,25 @@ srf.use('invite', validateCall);
 
 // handle validated incoming calls
 srf.invite((req, res) => {
-  const uri = parseUri(req.uri);
+  const headers = {};
   const callId = req.get('Call-ID');
-  const headers = {
-    from: `sip:${uri.user}@localhost`,
-    'Contact': `sip:${uri.user}@localhost`
-  };
-  if (req.locals.auth.diversion) {
-    Object.assign(headers, {
-      Diversion: `<sip:${req.locals.auth.diversion}@voxbone.com>;reason=unknown,counter=1,privacy=off` 
-    });
+  const uri = parseUri(req.uri);
+  let fromDid = uri.user;
+
+  if (config.has('use-diversion-header') && config.get('use-diversion-header') === true) {
+    if (req.locals.auth.diversion) {
+      Object.assign(headers, {
+        Diversion: `<sip:${req.locals.auth.diversion}@voxbone.com>;reason=unknown,counter=1,privacy=off` 
+      });      
+    }
   }
+  else {
+    if (req.locals.auth.diversion) fromDid = req.locals.auth.diversion;
+  }
+  Object.assign(headers, {
+    from: `sip:${fromDid}@localhost`,
+    'Contact': `sip:${fromDid}@localhost`
+  });
 
   const dest = `sip:${req.locals.ringTo}@${config.get('voxout.dns')}`;
   srf.createB2BUA(req, res, dest, {
