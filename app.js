@@ -19,6 +19,9 @@ srf.use('invite', validateCall);
 srf.invite((req, res) => {
   const uri = parseUri(req.uri);
   const dest = `sip:${req.locals.calledNumber}@voxout.voxbone.com`;
+  
+  logger.info('Request: ' + req);
+  logger.info('Response: ' + res);
 
   srf.createB2BUA(req, res, dest, {
     proxy: config.get('voxout.border-controller'),
@@ -28,7 +31,7 @@ srf.invite((req, res) => {
     }
   }, {
     // cbRequest gives us the INVITE request sent out over the wire..
-    cbRequest: (req, res) => postMapping(req, res)
+    cbRequest: () => postMapping(req, res)
   })
     .then(({uas, uac}) => {
       logger.info('call connected');
