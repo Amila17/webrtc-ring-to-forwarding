@@ -20,9 +20,6 @@ srf.invite((req, res) => {
   const uri = parseUri(req.uri);
   const dest = `sip:${req.locals.calledNumber}@voxout.voxbone.com`;
   
-  logger.info('Request: ' + req);
-  logger.info('Response: ' + res);
-
   srf.createB2BUA(req, res, dest, {
     proxy: config.get('voxout.border-controller'),
     auth: config.get('voxout.auth'),
