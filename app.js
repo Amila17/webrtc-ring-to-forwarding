@@ -28,7 +28,7 @@ srf.invite((req, res) => {
     }
   }, {
     // cbRequest gives us the INVITE request sent out over the wire..
-    cbRequest: (reqSent) => postMapping(req, reqSent)
+    cbRequest: (req, res) => postMapping(req, res)
   })
     .then(({uas, uac}) => {
       logger.info('call connected');
