@@ -3,6 +3,7 @@ const srf = new Srf();
 const logger = srf.locals.logger = require('pino')();
 const config = require('config');
 const validateCall = require('./lib/validate-call');
+const postMapping = require('./lib/post-callid-mapping')(logger);
 const parseUri = Srf.parseUri;
 
 // connect to the drachtio sip server
@@ -25,6 +26,9 @@ srf.invite((req, res) => {
     headers: {
       from: `sip:${uri.user}@localhost`
     }
+  }, {
+    // cbRequest gives us the INVITE request sent out over the wire..
+    cbRequest: (reqSent) => postMapping(req, reqSent)
   })
     .then(({uas, uac}) => {
       logger.info('call connected');
